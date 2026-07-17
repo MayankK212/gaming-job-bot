@@ -1,0 +1,23 @@
+name: Run Job Bot
+on:
+  schedule:
+    - cron: '0 9 * * *' # Roz subah 9 baje chalega
+  workflow_dispatch: # Button dabake kabhi bhi manual run kar sakte ho
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: pip install beautifulsoup4 requests
+      - name: Run script
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+        run: python job_bot.py
