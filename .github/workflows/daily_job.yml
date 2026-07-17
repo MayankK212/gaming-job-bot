@@ -1,22 +1,27 @@
 name: Run Job Bot
 on:
   schedule:
-    - cron: '0 9 * * *' # Roz subah 9 baje chalega
-  workflow_dispatch: # Button dabake kabhi bhi manual run kar sakte ho
+    - cron: '30 3 * * *' # Runs daily at 9:00 AM IST (3:30 AM UTC)
+  workflow_dispatch: # Allows you to run this manually anytime from GitHub Actions tab
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
-      - name: Install dependencies
-        run: pip install beautifulsoup4 requests
-      - name: Run script
+          python-version: '3.10'
+
+      - name: Install required python libraries
+        run: |
+          python -m pip install --upgrade pip
+          pip install beautifulsoup4 requests
+
+      - name: Execute Job Search Script
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
