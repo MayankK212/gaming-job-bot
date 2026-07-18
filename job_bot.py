@@ -27,7 +27,7 @@ def fetch_jobs():
             "query": f"{ROLES} in {loc}",
             "employment_types": "FULLTIME",
             "job_requirements": "more_than_5_years_experience",
-            "remote_jobs_only": "true",
+            "remote_jobs_only": "false",
             "num_pages": "1"
         }
         
