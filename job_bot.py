@@ -10,7 +10,8 @@ RAPID_API_KEY = os.environ.get('RAPID_API_KEY')
 
 # Constants
 ROLES = '("Analyst" OR "Engineer" OR "Scientist" OR "Data Analyst" OR "Data Engineer" OR "Data Scientist" OR "Senior Data Analyst" OR "Senior Data Engineer" OR "Senior Data Scientist" OR "Lead Data Analyst" OR "Lead Data Engineer" OR "Lead Data Scientist" OR "Game Data Analyst" OR "Game Data Scientist" OR "Game Data Engineer")'
-LOCATIONS = ["Gurgaon", "Delhi", "Noida", "Dubai", "Remote", "India"]
+LOCATIONS = ["India"]
+# LOCATIONS = ["Gurgaon", "Delhi", "Noida", "Dubai", "Remote", "India"]
 
 def fetch_jobs():
     url = "https://jsearch.p.rapidapi.com/search"
@@ -25,10 +26,10 @@ def fetch_jobs():
         # Har location ke liye separate API call
         querystring = {
             "query": f"{ROLES} in {loc}",
-            "employment_types": "FULLTIME",
-            "job_requirements": "more_than_5_years_experience",
-            "remote_jobs_only": "false",
-            "num_pages": "1"
+            # "employment_types": "FULLTIME",
+            # "job_requirements": "more_than_5_years_experience",
+            # "remote_jobs_only": "false",
+            "num_pages": "5"
         }
         
         try:
