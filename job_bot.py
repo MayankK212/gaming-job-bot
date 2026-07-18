@@ -12,11 +12,11 @@ import requests
 
 # Ensure NLTK resources are available
 try:
-    nltk.data.find("corpora/stopwords")
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
     nltk.download("stopwords", quiet=True)
     nltk.download("punkt", quiet=True)
+    nltk.download("punkt_tab", quiet=True)  # Solves the 'punkt_tab' missing resource error
+except Exception as e:
+    print(f"Warning: NLTK download failed: {e}")
 
 # ==================== CONFIGURATION ====================
 EMAIL_USER = "mkraone7@gmail.com"
