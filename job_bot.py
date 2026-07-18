@@ -21,6 +21,7 @@ def fetch_jobs():
         "x-rapidapi-host": RAPID_API_HOST
     }
     
+    # You can add more specific search terms to this list
     role_groups = [
         "Data Analyst in India"
     ]
@@ -40,23 +41,25 @@ def fetch_jobs():
             
             if response.status_code == 200:
                 response_json = response.json()
-                data = response_json.get('data', [])
+                data_payload = response_json.get('data', {})
                 
-                # Check if 'data' is actually a list
-                if isinstance(data, list):
-                    print(f"Found {len(data)} raw items in 'data' list.")
-                    
-                    for job in data:
-                        # Safety Check: Ensure the job item is a dictionary
-                        if isinstance(job, dict):
-                            desc = str(job.get('job_description', '')).lower()
-                            if ("5" in desc or "five" in desc) and ("year" in desc or "yr" in desc):
-                                all_jobs.append(job)
-                        else:
-                            print(f"⚠️ Warning: Expected dict but got {type(job)}: {job}")
+                # Dynamic check for the new /search-v2 dictionary structure
+                if isinstance(data_payload, dict):
+                    jobs_list = data_payload.get('jobs', [])
+                elif isinstance(data_payload, list):
+                    jobs_list = data_payload
                 else:
-                    print(f"⚠️ Warning: 'data' is not a list. It is a {type(data)}. Raw value: {data}")
-                    
+                    jobs_list = []
+                
+                print(f"Found {len(jobs_list)} raw jobs in API payload.")
+                
+                for job in jobs_list:
+                    if isinstance(job, dict):
+                        # Filter logic: Looking for 5+ years of experience in the description
+                        desc = str(job.get('job_description', '')).lower()
+                        if ("5" in desc or "five" in desc) and ("year" in desc or "yr" in desc):
+                            all_jobs.append(job)
+                            
             else:
                 print(f"API Error for group '{group}': Status Code {response.status_code} - {response.text}")
         except Exception as e:
