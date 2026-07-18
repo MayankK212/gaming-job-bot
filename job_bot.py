@@ -22,10 +22,11 @@ def fetch_jobs():
     
     # Roles ko 3-3 ke chote groups mein baanta (API Friendly)
     role_groups = [
-        "Data Analyst OR Data Engineer OR Data Scientist",
-        "Senior Data Analyst OR Senior Data Engineer OR Senior Data Scientist",
-        "Lead Data Analyst OR Lead Data Engineer OR Lead Data Scientist",
-        "Game Data Analyst OR Game Data Scientist OR Game Data Engineer"
+        "Data Analyst"
+        # "Data Analyst OR Data Engineer OR Data Scientist",
+        # "Senior Data Analyst OR Senior Data Engineer OR Senior Data Scientist",
+        # "Lead Data Analyst OR Lead Data Engineer OR Lead Data Scientist",
+        # "Game Data Analyst OR Game Data Scientist OR Game Data Engineer"
     ]
     
     all_jobs = []
