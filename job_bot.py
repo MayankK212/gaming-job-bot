@@ -3,6 +3,7 @@ import os
 import re
 import smtplib
 import time
+from datetime import datetime
 from email.message import EmailMessage
 import nltk
 from nltk.corpus import stopwords
@@ -204,25 +205,30 @@ def fetch_jobs(resume_keywords):
     # Remove duplicates
     unique_jobs = {job["job_id"]: job for job in all_jobs if "job_id" in job}
 
-    # Sort: Highest match score first
+    # ================= SORTING LOGIC MODIFIED =================
+    # Primary Sort: Posted Date Timestamp (Newest first, i.e., Descending Order)
+    # Secondary Sort: Match Score (Highest first)
     final_list = sorted(
         unique_jobs.values(),
-        key=lambda x: x.get("match_score", 0),
+        key=lambda x: (
+            int(x.get("job_posted_at_timestamp") or 0),
+            x.get("match_score", 0),
+        ),
         reverse=True,
     )
-    print(f"\nTotal Matching Jobs Found: {len(final_list)}")
+    print(f"\nTotal Matching Jobs Found (Sorted by Date Descending): {len(final_list)}")
     return final_list
 
 
 def generate_email_html(jobs_list):
-    """Generates a clean HTML layout with Match Score and Matched Resume Keywords."""
+    """Generates a clean HTML layout with Date badges, Match Score, and Matched Keywords."""
     html = """
     <html>
     <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
         <h2 style="color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px;">
-            🎯 Highly Relevant Jobs (Matched to your actual Resume Experience)
+            🎯 Fresh Relevant Jobs (Sorted by Latest Posted Date)
         </h2>
-        <p>Bhai, tere resume ke content aur experience se match karti hui jobs niche hain:</p>
+        <p>Bhai, tere resume se match hoti hui fresh jobs (sabse nayi pehle) niche hain:</p>
     """
 
     for i, job in enumerate(jobs_list[:15], 1):
@@ -237,6 +243,31 @@ def generate_email_html(jobs_list):
         link = job.get("job_apply_link", "#")
         matched_skills = job.get("matched_skills_list", [])
         match_score = job.get("match_score", 0)
+
+        # Process Job Posted Date relative to current time
+        posted_ts = job.get("job_posted_at_timestamp")
+        date_badge_html = ""
+        if posted_ts:
+            try:
+                posted_dt = datetime.fromtimestamp(posted_ts)
+                diff_days = (datetime.now() - posted_dt).days
+                if diff_days <= 0:
+                    date_str = "Today"
+                    bg_color, text_color = "#e6f4ea", "#137333"  # Green
+                elif diff_days == 1:
+                    date_str = "Yesterday"
+                    bg_color, text_color = "#fef7e0", "#b06000"  # Yellow-orange
+                else:
+                    date_str = f"{diff_days} days ago"
+                    bg_color, text_color = "#f1f3f4", "#5f6368"  # Muted grey
+                
+                date_badge_html = f"""
+                <div style="float: right; background-color: {bg_color}; color: {text_color}; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 5px;">
+                    🕒 {date_str}
+                </div>
+                """
+            except Exception:
+                pass
 
         # Salary processing
         min_sal = job.get("job_min_salary")
@@ -267,7 +298,8 @@ def generate_email_html(jobs_list):
 
         html += f"""
         <div style="background-color: #f8f9fa; border-left: 4px solid #1a73e8; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-            <div style="float: right; background-color: #e6f4ea; color: #137333; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+            {date_badge_html}
+            <div style="float: right; background-color: #e8f0fe; color: #1a73e8; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">
                 Relevance Score: {match_score} matches
             </div>
             <h3 style="margin: 0 0 5px 0; color: #202124;">{i}. {title}</h3>
@@ -309,7 +341,7 @@ def send_email(jobs_list):
         )
     else:
         msg["Subject"] = (
-            f"🚀 {len(jobs_list)} New Highly Relevant Jobs Found!"
+            f"🚀 [Latest Jobs First] {len(jobs_list)} Fresh Relevant Jobs Found!"
         )
         msg.add_alternative(generate_email_html(jobs_list), subtype="html")
 
