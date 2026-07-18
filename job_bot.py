@@ -1,7 +1,7 @@
 import requests
 import os
 
-RAPID_API_KEY = os.environ.get('RAPID_API_KEY') # Ya yahan seedha apni key likh do
+RAPID_API_KEY = '9843fb14a4msh2c482644769cbbap103b70jsn2c29598596ec'
 
 def test_api():
     url = "https://jsearch.p.rapidapi.com/search"
