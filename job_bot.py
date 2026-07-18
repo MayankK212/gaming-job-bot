@@ -1,22 +1,72 @@
 import requests
-import os
 
 RAPID_API_KEY = '9843fb14a4msh2c482644769cbbap103b70jsn2c29598596ec'
+RAPID_API_HOST = 'jsearch.p.rapidapi.com'
 
-def test_api():
-    url = "https://jsearch.p.rapidapi.com/search"
-    querystring = {"query": "Data Analyst in India"}
+def search_jobs(query):
+    """Step 1: Search for jobs and return a list of job IDs and Titles"""
+    # IMPORTANT: Replace '/search' with the EXACT URL you see in RapidAPI dashboard
+    url = "https://jsearch.p.rapidapi.com/search" 
+    
+    querystring = {"query": query, "page": "1", "num_pages": "1"}
     headers = {
-        "X-RapidAPI-Key": RAPID_API_KEY,
-        "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
+        "x-rapidapi-key": RAPID_API_KEY,
+        "x-rapidapi-host": RAPID_API_HOST
     }
 
     response = requests.get(url, headers=headers, params=querystring)
     
-    print(f"Status Code: {response.status_code}")
-    print(f"Response Body: {response.text[:500]}") # Pehle 500 characters print karega
+    if response.status_code == 200:
+        return response.json().get('data', [])
+    else:
+        print(f"Search Error: {response.status_code} - {response.text}")
+        return []
 
-test_api()
+def get_job_details(job_id):
+    """Step 2: Get deep details for a specific job_id"""
+    url = "https://jsearch.p.rapidapi.com/job-details"
+    querystring = {"job_id": job_id, "country": "us"}
+    headers = {
+        "x-rapidapi-key": RAPID_API_KEY,
+        "x-rapidapi-host": RAPID_API_HOST
+    }
+
+    response = requests.get(url, headers=headers, params=querystring)
+    
+    if response.status_code == 200:
+        return response.json().get('data', [{}])[0] # Returns the first item in data list
+    else:
+        print(f"Details Error: {response.status_code}")
+        return None
+
+# --- MAIN EXECUTION ---
+if __name__ == "__main__":
+    user_query = "Data Analyst in India"
+    
+    print(f"Searching for: {user_query}...\n")
+    jobs_list = search_jobs(user_query)
+
+    if jobs_list:
+        print(f"Found {len(jobs_list)} jobs. Let's look at the first one in detail:\n")
+        
+        # Get the ID of the very first job found
+        first_job_id = jobs_list[0]['job_id']
+        print(f"Fetching details for Job ID: {first_job_id}\n")
+
+        # Call the details endpoint
+        details = get_job_details(first_job_id)
+
+        if details:
+            print("--- JOB DETAILS ---")
+            print(f"TITLE:    {details.get('job_title')}")
+            print(f"COMPANY:  {details.get('employer_name')}")
+            print(f"LOCATION: {details.get('job_location')}")
+            print(f"SALARY:   {details.get('job_min_salary')} - {details.get('job_max_salary')} {details.get('job_salary_period')}")
+            print(f"DESCRIPTION (Preview): {details.get('job_description')[:200]}...")
+        else:
+            print("Could not fetch details.")
+    else:
+        print("No jobs found or Search API URL is incorrect.")
 
 # import os
 # import requests
