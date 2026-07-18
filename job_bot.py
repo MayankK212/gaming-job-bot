@@ -107,11 +107,12 @@ def generate_email_html(jobs_list):
         location = f"{job.get('job_city', '')}, {job.get('job_country', '')}".strip(", ") or "N/A"
         link = job.get('job_apply_link', '#')
         
-        # 1. Salary processing
+        # 1. Safe Salary processing (Handles NoneType values)
         min_sal = job.get('job_min_salary')
         max_sal = job.get('job_max_salary')
-        currency = job.get('job_salary_currency', '')
-        period = job.get('job_salary_period', '').lower()
+        currency = job.get('job_salary_currency') or ''
+        period = (job.get('job_salary_period') or '').lower()
+        
         if min_sal and max_sal:
             salary_str = f"{currency} {min_sal:,} - {max_sal:,} per {period}"
         elif min_sal:
@@ -121,11 +122,13 @@ def generate_email_html(jobs_list):
 
         # 2. Extract Skills / Qualifications
         highlights = job.get('job_highlights', {})
-        qualifications = highlights.get('Qualifications', []) if isinstance(highlights, dict) else []
+        qualifications = []
+        if isinstance(highlights, dict):
+            qualifications = highlights.get('Qualifications', []) or []
         skills_str = ", ".join(qualifications[:4]) if qualifications else "Check description"
 
         # 3. Truncate Description
-        desc = job.get('job_description', 'No description available.')
+        desc = job.get('job_description') or 'No description available.'
         short_desc = desc[:200] + "..." if len(desc) > 200 else desc
 
         # Append structured HTML block for this job
