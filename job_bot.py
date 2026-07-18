@@ -9,8 +9,8 @@ EMAIL_PASS = os.environ.get('EMAIL_PASS')
 RAPID_API_KEY = os.environ.get('RAPID_API_KEY')
 
 # Constants
-ROLES = '("Analyst" OR "Engineer" OR "Scientist" OR "Data Analyst" OR "Data Engineer" OR "Data Scientist" OR "Senior Data Analyst" OR "Senior Data Engineer" OR "Senior Data Scientist" OR "Lead Data Analyst" OR "Lead Data Engineer" OR "Lead Data Scientist" OR "Game Data Analyst" OR "Game Data Scientist" OR "Game Data Engineer")'
-LOCATIONS = ["India"]
+# ROLES = '("Analyst" OR "Engineer" OR "Scientist" OR "Data Analyst" OR "Data Engineer" OR "Data Scientist" OR "Senior Data Analyst" OR "Senior Data Engineer" OR "Senior Data Scientist" OR "Lead Data Analyst" OR "Lead Data Engineer" OR "Lead Data Scientist" OR "Game Data Analyst" OR "Game Data Scientist" OR "Game Data Engineer")'
+# LOCATIONS = ["India"]
 # LOCATIONS = ["Gurgaon", "Delhi", "Noida", "Dubai", "Remote", "India"]
 
 def fetch_jobs():
@@ -20,31 +20,41 @@ def fetch_jobs():
         "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
     }
     
+    # Roles ko 3-3 ke chote groups mein baanta (API Friendly)
+    role_groups = [
+        "Data Analyst OR Data Engineer OR Data Scientist",
+        "Senior Data Analyst OR Senior Data Engineer OR Senior Data Scientist",
+        "Lead Data Analyst OR Lead Data Engineer OR Lead Data Scientist",
+        "Game Data Analyst OR Game Data Scientist OR Game Data Engineer"
+    ]
+    
     all_jobs = []
     
-    for loc in LOCATIONS:
-        # Har location ke liye separate API call
+    for group in role_groups:
         querystring = {
-            "query": f"{ROLES} in {loc}",
-            # "employment_types": "FULLTIME",
-            # "job_requirements": "more_than_5_years_experience",
-            # "remote_jobs_only": "false",
-            "num_pages": "5"
+            "query": f"{group}",
+            "employment_types": "FULLTIME",
+            "remote_jobs_only": "false",
+            "num_pages": "1"
         }
         
         try:
             response = requests.get(url, headers=headers, params=querystring, timeout=15)
             if response.status_code == 200:
                 data = response.json().get('data', [])
-                all_jobs.extend(data)
+                for job in data:
+                    # Manual filter: Sirf wahi jobs jisme 5+ years ka mention ho
+                    desc = str(job.get('job_description', '')).lower()
+                    if "5" in desc and "year" in desc:
+                        all_jobs.append(job)
+            else:
+                print(f"API Error for group {group}: {response.status_code}")
         except Exception as e:
-            print(f"Failed for {loc}: {e}")
+            print(f"Request failed: {e}")
             
-    # Duplicate jobs remove karna (job_id ke basis par)
+    # Duplicates hatao
     unique_jobs = {job['job_id']: job for job in all_jobs}.values()
-    
-    # Sorting by date (Descending)
-    return sorted(unique_jobs, key=lambda x: x.get('job_posted_at_timestamp', 0), reverse=True)
+    return list(unique_jobs)
 
 def send_email(jobs_list):
     msg = EmailMessage()
