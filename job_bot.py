@@ -35,7 +35,7 @@ if not RAPID_API_KEY:
 
 # 1. Locations & Roles
 LOCATIONS = [
-    "Lucknow,
+    "Lucknow",
     "Remote",
     "Noida",
     "Gurgaon",
