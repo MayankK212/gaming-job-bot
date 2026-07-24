@@ -35,23 +35,20 @@ if not RAPID_API_KEY:
 
 # 1. Locations & Roles
 LOCATIONS = [
-    "NCR",
-    "New Delhi",
-    "Delhi",
+    "Lucknow,
     "Remote",
     "Noida",
     "Gurgaon",
     "Gurugram",
-    "Greater Noida",
-    "Ghaziabad",
+    "Greater Noida"
 ]
 
 ROLE_GROUPS = [
-    "Data Analyst OR Data Engineer OR Data Scientist",
-    "Senior Data Analyst OR Senior Data Engineer OR Senior Data Scientist",
-    "Lead Data Analyst OR Lead Data Engineer OR Lead Data Scientist",
-    "Game Data Analyst OR Game Data Scientist OR Game Data Engineer",
-    "Analyst OR Engineer OR Scientist",
+    "Data Analyst OR Data Engineer",
+    "Senior Data Analyst OR Senior Data Engineer",
+    "Lead Data Analyst OR Lead Data Engineer",
+    "Game Data Analyst OR Game Data Engineer",
+    "Analyst OR Engineer",
 ]
 
 # NLTK Stopwords + Generic corporate words to clean the dataset
