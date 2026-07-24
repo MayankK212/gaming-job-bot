@@ -48,7 +48,7 @@ ROLE_GROUPS = [
     "Senior Data Analyst OR Senior Data Engineer",
     "Lead Data Analyst OR Lead Data Engineer",
     "Game Data Analyst OR Game Data Engineer",
-    "Analyst OR Engineer",
+    "Analyst OR Engineer"
 ]
 
 # NLTK Stopwords + Generic corporate words to clean the dataset
